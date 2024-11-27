@@ -7,6 +7,10 @@ Lancer avec `./gradlew run`
 Temps de traitement moyen : 58 ms
 Temps de traitement minimal : 21 ms
 Temps de traitement maximal : 246 ms
+## Arow
+Temps de traitement moyen : 78 ms
+Temps de traitement minimal : 40 ms
+Temps de traitement maximal : 300 ms
 
 # 🚀 Challenge du 17/11/24 : Qui a la plus grosse ... machine ? - Le "Stream Performance Challenge"
 

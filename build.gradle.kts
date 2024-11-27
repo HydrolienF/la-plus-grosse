@@ -32,6 +32,10 @@ application {
     mainClass = "fr.formiko.laplusgrosse.App"
 }
 
+tasks.jar {
+    manifest.attributes["Main-Class"] = "fr.formiko.laplusgrosse.App"
+}
+
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
