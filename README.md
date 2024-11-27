@@ -31,6 +31,7 @@ L'objectif est de :
 - **Afficher les 10 premiers résultats** sous la forme :
 
 ***"1. Mexico, 0115, 45%"***
+
 ***"2. Paris, 2115, 26%"***
 
 Le fichier contient des données générées aléatoirement, donc les résultats ne correspondent pas à la réalité. Ce qui compte ici, c'est la méthode de calcul et la performance.
