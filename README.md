@@ -2,6 +2,12 @@
 
 Lancer avec `./gradlew run`
 
+# Statistique sur 100 executions
+## Lapinou
+Temps de traitement moyen : 58 ms
+Temps de traitement minimal : 21 ms
+Temps de traitement maximal : 246 ms
+
 # 🚀 Challenge du 17/11/24 : Qui a la plus grosse ... machine ? - Le "Stream Performance Challenge"
 
 **Dates** : du 17/11/24 au 01/12/24

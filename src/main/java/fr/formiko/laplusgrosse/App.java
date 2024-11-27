@@ -20,18 +20,24 @@ public class App {
         }
         System.out.println("\nTemps de traitement : " + (System.currentTimeMillis() - start) + " ms");
 
-        // // run x times to get an average, min & max run time
-        // int x = 10;
+        // run x times to get an average, min & max run time
+        // int x = 100;
         // long min = Long.MAX_VALUE;
         // long max = Long.MIN_VALUE;
         // long total = 0;
         // for (int i = 0; i < x; i++) {
-        //     start = System.currentTimeMillis();
+        //     long start = System.currentTimeMillis();
         //     getTenMostUsedPostalCode(getCountryData());
         //     long time = System.currentTimeMillis() - start;
         //     total += time;
         //     min = Math.min(min, time);
         //     max = Math.max(max, time);
+        //     // System.out.println(i + 1 + ". " + time + " ms");
+        //     try {
+        //         Thread.sleep(100);
+        //     } catch (InterruptedException e) {
+        //         e.printStackTrace();
+        //     }
         // }
         // System.out.println("\nTemps de traitement moyen : " + total / x + " ms");
         // System.out.println("Temps de traitement minimal : " + min + " ms");
@@ -80,6 +86,7 @@ public class App {
     private static List<String> getTenMostUsedPostalCode(Map<String, Map<Integer, Long>> contryData){
         // From Map<String, Map<Integer, Long>> to Map<Person, Float> where the float is a percentage of the total number of people leaving in that country & in that postal code
         return contryData.entrySet().stream()
+                .parallel()
                 .map(
                     countryEntry -> {
                         long total = countryEntry.getValue().values().stream().mapToLong(Long::longValue).sum();
