@@ -5,15 +5,42 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Collectors;
 import java.util.Map;
+import java.util.List;
 
 // "1";"Gretchen";"Barrows-Kassulke";"Gretchen.Barrows-Kassulke@yahoo.com";"Jamaica";"3954"
-// Just reading files in Lapinou take ~300 ms with parallel() and ~400 ms without parallel()
+// Just reading files in Lapinou take ~60 ms with parallel() and ~80 ms without parallel()
 public class App {
     public static void main(String[] args) {
+        // run once
         long start = System.currentTimeMillis();
+        List<String> result = getTenMostUsedPostalCode(getCountryData());
+
+        for (int i = 0; i < result.size(); i++) {
+            System.out.println(i + 1 + ". " + result.get(i));
+        }
+        System.out.println("\nTemps de traitement : " + (System.currentTimeMillis() - start) + " ms");
+
+        // // run x times to get an average, min & max run time
+        // int x = 10;
+        // long min = Long.MAX_VALUE;
+        // long max = Long.MIN_VALUE;
+        // long total = 0;
+        // for (int i = 0; i < x; i++) {
+        //     start = System.currentTimeMillis();
+        //     getTenMostUsedPostalCode(getCountryData());
+        //     long time = System.currentTimeMillis() - start;
+        //     total += time;
+        //     min = Math.min(min, time);
+        //     max = Math.max(max, time);
+        // }
+        // System.out.println("\nTemps de traitement moyen : " + total / x + " ms");
+        // System.out.println("Temps de traitement minimal : " + min + " ms");
+        // System.out.println("Temps de traitement maximal : " + max + " ms");
+    }
+
+    private static Map<String, Map<Integer, Long>> getCountryData() {
         try {
-            Map<String, Map<Integer, Long>> result =
-                Files.lines(Path.of("LargeDataSet.csv"))
+            return Files.lines(Path.of("LargeDataSet.csv"))
                 // Files.lines(Path.of("SmallDataSet.csv"))
                     .parallel()
                     .map(csvLine -> {
@@ -32,24 +59,6 @@ public class App {
                         return new Person(country, postalCode);
 
                     })
-                    // // Collect a Map<Person, Long> where the key is the Person and the value is the number of people with that country and postal code
-                    // .collect(
-                    //     Collectors.groupingBy(
-                    //         person -> person,
-                    //         Collectors.counting()
-                    //     )
-                    // )
-                    // // Person[country=Burkina Faso, postalCode=4862] : 1
-                    // // Collect a Map<String, Map<Integer, Integer>> where the key is the country and the value is a Map<Integer, Integer> where the key is the postal code and the value is the number of people with that country and postal code
-                    // .collect(
-                    //     Collectors.groupingBy(
-                    //         person -> person.country(),
-                    //         Collectors.groupingBy(
-                    //             person -> person.postalCode(),
-                    //             Collectors.summingInt(person -> 1)
-                    //         )
-                    //     )
-                    // )
                     .collect(
                         Collectors.groupingBy(
                             person -> person.country(),
@@ -59,39 +68,35 @@ public class App {
                             )
                         )
                     );
-                    // .entrySet().stream()
-                    // .sorted((entry1, entry2) -> Long.compare(entry1.getValue().values().stream().mapToLong(Long::longValue).sum(), entry2.getValue().values().stream().mapToLong(Long::longValue).sum()))
-                    // .limit(10)
-                    // .forEach(System.out::println);
-
-
-                    // .sort((entry1, entry2) -> Long.compare(entry2.getValue(), entry1.getValue()))
-                    // print all
-                    // .forEach((person, count) -> System.out.println(person + " : " + count));
-                    // .forEach((country, postalCodeMap) -> {
-                    //     System.out.println(country + " : ");
-                    //     postalCodeMap.forEach((postalCode, count) -> {
-                    //         System.out.println("\t" + postalCode + " : " + count);
-                    //     });
-                    // });
-
-
-
-                    // // Create a Data structure to store Country, PostalCode, Number of people with that country and postal code
-                    // .map(person -> person.postalCode())
-                    // .max(Integer::compare)
-                    // .ifPresent(System.out::println);
-                    // .count();
-                    //.findFirst().ifPresent(System.out::println);
-            
         }catch (IOException e) {
             e.printStackTrace();
+            return Map.of();
         }
-        System.out.println("Temps de traitement : " + (System.currentTimeMillis() - start) + " ms");
+    }
+    /**
+     * 
+     * @return the 10 most used postal code compared to the total number of people living in the country
+     */
+    private static List<String> getTenMostUsedPostalCode(Map<String, Map<Integer, Long>> contryData){
+        // From Map<String, Map<Integer, Long>> to Map<Person, Float> where the float is a percentage of the total number of people leaving in that country & in that postal code
+        return contryData.entrySet().stream()
+                .map(
+                    countryEntry -> {
+                        long total = countryEntry.getValue().values().stream().mapToLong(Long::longValue).sum();
+                        return countryEntry.getValue().entrySet().stream()
+                            .map(
+                                postalCodeEntry -> {
+                                    float percentage = (float) postalCodeEntry.getValue() / total * 100;
+                                    return Map.entry(new Person(countryEntry.getKey(), postalCodeEntry.getKey()), percentage);
+                                }
+                            );
+                    }
+                )
+                .flatMap(entry -> entry)
+                .sorted((entry1, entry2) -> Float.compare(entry2.getValue(), entry1.getValue()))
+                .limit(10)
+                .map(entry -> String.format("%s, %s, %.2f%%", entry.getKey().country(), entry.getKey().postalCode(), entry.getValue()))
+                .toList();
     }
 
-
-    // class CountryCollector extends Collector<Map<Person, Long>, Object, Map<String, Map<Integer, Integer>>> {
-
-    // }
 }
